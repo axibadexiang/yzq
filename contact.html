@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CONTACT — Hedda Roman</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Jost:wght@400;500;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-title-key="contact">
+
+<div class="cover" data-cover data-base="">
+  <div class="cover__media" data-media></div>
+  <div class="cover__scrim"></div>
+</div>
+
+<div class="cover cover--front">
+  <div class="cover__inner">
+
+    <div class="cover__brand sqs-slice-group group-branding top-full-width" data-brand></div>
+
+    <div class="cover__copy sqs-slice-group group-copy align-center-vert restrict-width-1000">
+      <div class="copy" data-copy></div>
+    </div>
+
+    <div class="cover__links sqs-slice-group group-links responsive-wrapper top-right">
+      <div class="sqs-slice social" data-slice-type="social-icons" data-social></div>
+      <div class="sqs-slice lang" data-slice-type="language" data-lang></div>
+      <div class="sqs-slice nav-wrap" data-slice-type="navigation" data-compound-type="action">
+        <nav class="nav" data-nav aria-label="Primary"></nav>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+<script>
+  mountCover({
+    media: 'assets/' + IMAGES.contactPoster,
+    brandHtml: 'Hedda Roman',
+    activeNav: 'CONTACT',
+    navItems: SITE.navContact,
+    copyHtml: '<p><a href="mailto:heddaromanstudio@gmail.com">HEDDAROMANSTUDIO@GMAIL.COM</a></p>'
+  });
+</script>
+</body>
+</html>

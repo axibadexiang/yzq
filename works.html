@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>works — Hedda Roman</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Jost:wght@400;500;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  /* /works is a splash-page collection: each work is its own slide with a
+     full-bleed still and the title set in the .heading-font face.
+     clamp() keeps 86px on desktop (12vw >= 86 above ~717px) and scales the
+     title down on phones so it never overflows or collides with the menu. */
+  .works-title {
+    font-family: 'Jost', futura-pt, 'Century Gothic', 'Futura', 'Helvetica Neue', Arial, sans-serif;
+    font-weight: 400;
+    font-size: clamp(40px, 12vw, 86px);
+    letter-spacing: 0.01em;
+    line-height: 1em;
+    margin: 0 0 0.35em;
+    text-transform: none;
+  }
+  .cover__copy { max-width: 880px; }
+  .worklist { margin-top: 0.5em; }
+  @media (max-width: 640px) {
+    .worklist li:not(:last-child) { margin-bottom: 10px; }
+  }
+</style>
+</head>
+<body data-title-key="works">
+
+<div class="cover" data-cover data-base="">
+  <div class="cover__media" data-media></div>
+  <div class="cover__scrim"></div>
+</div>
+
+<div class="cover cover--front">
+  <div class="cover__inner">
+
+    <div class="cover__brand sqs-slice-group group-branding top-full-width" data-brand></div>
+
+    <div class="cover__copy sqs-slice-group group-copy align-center-vert restrict-width-1000">
+      <p class="works-title" data-title></p>
+      <ul class="worklist" data-list></ul>
+    </div>
+
+    <div class="cover__links sqs-slice-group group-links responsive-wrapper top-right">
+      <div class="sqs-slice social" data-slice-type="social-icons" data-social></div>
+      <div class="sqs-slice lang" data-slice-type="language" data-lang></div>
+      <div class="sqs-slice nav-wrap" data-slice-type="navigation" data-compound-type="action">
+        <nav class="nav" data-nav aria-label="Primary"></nav>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="rail" data-rail></div>
+<button class="rail-toggle has-rail" data-rail-toggle aria-label="Toggle work strip">
+  <svg viewBox="0 0 24 24"><path d="M4 6h16v2H4zM4 11h16v2H4zM4 16h16v2H4z"/></svg>
+</button>
+
+<script src="data.js"></script>
+<script src="i18n.js"></script>
+<script src="app.js"></script>
+<script>
+(function () {
+  /* Cover still for each splash slide, in published order. */
+  const COVERS = [
+    'Apartment_Monologue_Stills_013-01276b.png',
+    'image-asset-3b63b9.jpeg',
+    'image-asset-0a7cab.jpeg',
+    'image-asset-dffcc4.jpeg',
+    'philara_190704_SchatSzcz_c_002b-de28a5.jpg',
+    'philara_190704_SchatSzcz_d_014b2-0565c6.jpg',
+    'philara_190704_SchatSzcz_c_036b-1194b2.jpg',
+    'philara_190704_SchatSzcz_b_014b-eb8a62.jpg',
+    'media_art_award-8c992d.jpg',
+    'maga_final-1-8ace14.jpg',
+    'maga_final-4-8e92e4.jpg',
+    'Mary_und_der_vulkan-1-2eebe0.jpg'
+  ];
+  const titles = WORK_TITLES.slice(0, COVERS.length);
+
+  /* ---- chrome ---- */
+  document.querySelector('[data-brand]').innerHTML =
+    `<a href="index.html">${SITE.brand}</a>`;
+  document.querySelector('[data-nav]').innerHTML =
+    '<ul>' + navMarkup('WORKS', '') + '</ul>';
+  document.querySelector('[data-social]').innerHTML = socialMarkup();
+
+  /* ---- background stack ---- */
+  const media = document.querySelector('[data-media]');
+  media.innerHTML = COVERS
+    .map((src, i) =>
+      `<img src="assets/${src}" alt="" data-slide="${i}" ` +
+      `style="opacity:${i === 0 ? 1 : 0};transition:opacity 900ms cubic-bezier(.25,.1,.25,1)">`)
+    .join('');
+  const imgs = Array.from(media.querySelectorAll('img'));
+
+  /* Keep portrait stills uncropped. */
+  const first = imgs[0];
+  const orient = () => media.classList.toggle('is-framed', first.naturalHeight > first.naturalWidth);
+  if (first.complete) orient();
+  first.addEventListener('load', orient);
+
+  /* Warm the cache so switching never flashes. */
+  COVERS.forEach(src => { const im = new Image(); im.src = 'assets/' + src; });
+
+  /* ---- lists ---- */
+  const listEl = document.querySelector('[data-list]');
+  const titleEl = document.querySelector('[data-title]');
+  const rail = document.querySelector('[data-rail]');
+
+  listEl.innerHTML = titles
+    .map((t, i) => `<li><a href="#" data-i="${i}">${t}</a></li>`)
+    .join('');
+  rail.innerHTML = COVERS
+    .map((src, i) =>
+      `<button data-i="${i}" aria-label="${titles[i]}" style="background-image:url('assets/${src}')"></button>`)
+    .join('');
+
+  let cur = 0;
+
+  function go(i) {
+    i = Math.max(0, Math.min(titles.length - 1, i));
+    if (i === cur) return;
+
+    imgs.forEach((im, n) => {
+      im.style.opacity = n === i ? '1' : '0';
+      im.style.transform = n === i ? 'scale(1)' : 'scale(1.05)';
+    });
+    media.classList.remove('is-framed');
+    if (imgs[i].complete) media.classList.toggle('is-framed', imgs[i].naturalHeight > imgs[i].naturalWidth);
+
+    cur = i;
+    titleEl.textContent = titles[i];
+
+    [...listEl.children].forEach((li, n) => li.firstChild.classList.toggle('is-active', n === i));
+    const railBtns = [...rail.querySelectorAll('button')];
+    railBtns.forEach((b, n) => b.classList.toggle('is-active', n === i));
+    railBtns[i].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+  }
+
+  listEl.addEventListener('click', e => {
+    const a = e.target.closest('a');
+    if (!a) return;
+    e.preventDefault();
+    go(Number(a.dataset.i));
+  });
+  listEl.addEventListener('mouseover', e => {
+    const a = e.target.closest('a');
+    if (a) go(Number(a.dataset.i));
+  });
+  rail.addEventListener('click', e => {
+    const b = e.target.closest('button');
+    if (b) go(Number(b.dataset.i));
+  });
+
+  /* wheel stepping, matching the original splash-page flow */
+  let locked = false;
+  window.addEventListener('wheel', e => {
+    if (locked || Math.abs(e.deltaY) < 14) return;
+    locked = true;
+    setTimeout(() => (locked = false), 640);
+    go(cur + (e.deltaY > 0 ? 1 : -1));
+  }, { passive: true });
+
+  document.addEventListener('keydown', e => {
+    if (['ArrowDown', 'ArrowRight'].includes(e.key)) { e.preventDefault(); go(cur + 1); }
+    if (['ArrowUp', 'ArrowLeft'].includes(e.key)) { e.preventDefault(); go(cur - 1); }
+  });
+
+  let ty = 0;
+  window.addEventListener('touchstart', e => (ty = e.touches[0].clientY), { passive: true });
+  window.addEventListener('touchend', e => {
+    const dy = ty - e.changedTouches[0].clientY;
+    if (Math.abs(dy) > 46) go(cur + (dy > 0 ? 1 : -1));
+  }, { passive: true });
+
+  /* ---- thumbnail rail toggle ---- */
+  const railToggle = document.querySelector('[data-rail-toggle]');
+  railToggle.addEventListener('click', () => rail.classList.toggle('is-open'));
+
+  /* ---- seed initial state ---- */
+  titleEl.textContent = titles[0];
+  listEl.children[0].firstChild.classList.add('is-active');
+  rail.querySelector('button').classList.add('is-active');
+})();
+</script>
+</body>
+</html>

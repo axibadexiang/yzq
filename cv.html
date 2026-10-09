@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>cv — Hedda Roman</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Jost:wght@400;500;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="cv__bar">
+  <a class="brand" href="index.html">Hedda Roman</a>
+  <nav class="nav" data-nav aria-label="Primary"></nav>
+</header>
+
+<main class="cv">
+  <div class="cv__wrap">
+    <h1 class="cv__title" data-cv-title></h1>
+    <div class="cv__subtitle" data-cv-intro></div>
+    <section>
+      <h2 data-i18n="cvHeadings.awards">Awards</h2>
+      <div data-cv-awards></div>
+    </section>
+    <section>
+      <h2 data-i18n="cvHeadings.shows">Exhibitions / Screenings / Readings</h2>
+      <div data-cv-exh></div>
+    </section>
+  </div>
+</main>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+<script>
+(function () {
+  document.querySelector('[data-nav]').innerHTML = navMarkup('CV', '');
+
+  document.querySelector('[data-cv-title]').textContent = CV.title;
+  document.querySelector('[data-cv-intro]').innerHTML =
+    CV.intro.map(p => `<p style="margin:0 0 6px">${p}</p>`).join('');
+
+  document.querySelector('[data-cv-awards]').innerHTML = CV.awards
+    .map(([txt, yr]) => `<p class="award">${txt} <span style="color:#888">(${yr})</span></p>`)
+    .join('');
+
+  document.querySelector('[data-cv-exh]').innerHTML = CV.exhibitions
+    .map(([year, items]) => `
+      <div class="year-group">
+        <p class="year">${year}</p>
+        ${items.map(t => `<p class="exh">${t}</p>`).join('')}
+      </div>`)
+    .join('');
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>press — Hedda Roman</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Jost:wght@400;500;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-title-key="press">
+
+<header class="cv__bar">
+  <a class="brand" href="index.html">Hedda Roman</a>
+  <div class="sqs-slice lang" data-slice-type="language" data-lang></div>
+  <nav class="nav" data-nav aria-label="Primary"></nav>
+</header>
+
+<main class="cv">
+  <div class="cv__wrap">
+    <h1 class="cv__title" data-i18n="press.title">PRESS</h1>
+    <div class="cv__subtitle" data-i18n="press.subtitle">Selected press coverage.</div>
+    <section>
+      <h2 data-i18n="press.section">Press</h2>
+      <div data-press></div>
+    </section>
+  </div>
+</main>
+
+<script src="data.js"></script>
+<script src="i18n.js"></script>
+<script src="app.js"></script>
+<script>
+(function () {
+  document.querySelector('[data-nav]').innerHTML = navMarkup('PRESS', '', SITE.navContact);
+
+  const PRESS = [
+    ['SPIEGEL 2016/22', '2016'],
+    ['Katalog Marl — “Apartment Monologue”', '2018'],
+    ['Bilder Katalog McKinsey — Class Andreas Gursky', '2015'],
+    ['media art award — Marl Media Art Award', '2018']
+  ];
+  document.querySelector('[data-press]').innerHTML = PRESS
+    .map(([txt, yr]) => `<p class="award">${txt} <span style="color:#888">(${yr})</span></p>`)
+    .join('');
+})();
+</script>
+</body>
+</html>

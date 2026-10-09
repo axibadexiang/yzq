@@ -1,0 +1,894 @@
+/* ==========================================================================
+   Hedda Roman — site clone
+   Stylesheet rebuilt 1:1 from the live Squarespace cover-page theme.
+   Token values are copied verbatim from the original's #slide-styles block:
+
+     .branding-font  { font-family:EB Garamond;font-weight:400;font-size:20px;
+                       text-transform:none;letter-spacing:.04em;line-height:1em }
+     .navigation-font{ font-family:EB Garamond;font-weight:400;font-size:20px;
+                       text-transform:lowercase;letter-spacing:.04em }
+     .heading-font   { font-family:futura-pt;font-size:86px;font-weight:400;
+                       letter-spacing:.01em;line-height:1em }
+     .body-font      { font-family:futura-pt;font-weight:800;font-size:106px;
+                       line-height:1.4em;letter-spacing:.04em }
+
+     .sqs-slide-layer.full-width-height { position:absolute;top:0;left:0;
+                                          width:100%;height:100%;overflow:hidden }
+     .sqs-slide-layer-content     { position:relative;padding:40px 60px 60px 60px;
+                                    box-sizing:border-box }
+     .full-width-height>.sqs-slide-layer-content { height:100% }
+     .align-content-center-vert   { display:flex;justify-content:center;
+                                    flex-direction:column }
+     .sqs-slice-group.top-full-width { position:absolute;top:40px;left:60px;right:60px }
+     .group-links.top-right          { position:absolute;top:40px;right:60px }
+     .group-copy.restrict-width-1000 { max-width:880px;width:100% }
+     .alignment-left .sqs-slide-layer-content .group-copy,
+     .alignment-left [data-slice-type="body"] { text-align:left;margin-left:0;
+                                               margin-right:auto }
+     [data-slice-type="body"] { max-width:36em }
+     [data-slice-type="navigation"] ul { font-family:EB Garamond;font-weight:400;
+        font-size:20px;text-transform:lowercase;letter-spacing:.04em }
+     navigation ul li a { padding:.8em .6em ; color:#fff; transition:color 100ms ease-in-out }
+     navigation ul li:first-of-type a { padding-left:0 }
+     navigation ul li:last-of-type  a { padding-right:0 }
+     navigation ul li a:hover { color:rgba(255,255,255,.6) }
+     .social-icons-size-medium.social-icons-style-regular
+       [data-slice-type="social-icons"] .icon-wrapper { width:24px;height:24px;margin:0 7px }
+     .icon-wrapper { position:relative;overflow:hidden;vertical-align:middle;
+                     transform:translatez(0) }
+     .icon-wrapper>div { position:absolute;top:0;left:0;width:100%;height:100% }
+     .icon-wrapper svg { position:absolute;top:0;left:0;width:100%;height:100% }
+     (regular style) .icon-wrapper>div { transform:scale(2) }
+     .scrim { position:absolute;inset:0;z-index:9999;
+              background-color:rgba(0,0,0,.2) }
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Fonts — EB Garamond is used by the original for branding + navigation.
+   futura-pt is an Adobe (Typekit) face the original loads via kit id; the
+   closest free metric match is Jost, which we ship as the fallback chain.
+   -------------------------------------------------------------------------- */
+
+:root {
+  --overlay: rgba(0, 0, 0, 0.2);   /* .scrim background-color in the original */
+  --fg: #ffffff;
+  --pad-top: 40px;
+  --pad-right: 60px;
+  --pad-bottom: 60px;
+  --pad-left: 60px;
+  --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
+  --font-serif: 'EB Garamond';
+  --font-sans: 'Jost', futura-pt, 'Century Gothic', 'Futura', 'Helvetica Neue', Arial, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #000;
+  color: var(--fg);
+  font-family: var(--font-serif);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+a { color: inherit; text-decoration: none; }
+
+img { display: block; max-width: 100%; }
+
+/* --------------------------------------------------------------------------
+   Cover shell — mirrors
+   .sqs-slide-layer.full-width-height / .sqs-slide-layer-content
+   -------------------------------------------------------------------------- */
+
+.cover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+/* The theme stacks two .sqs-slide-layer.full-width-height siblings:
+   layer-back (media) under layer-front (content). Both are absolute. */
+.cover--front { z-index: 1; pointer-events: none; }
+.cover--front a,
+.cover--front .nav,
+.cover--front .social { pointer-events: auto; }
+
+/* [data-slice-type="gallery"] — position:absolute; inset:0; z-index:0.
+   Media fills its box edge-to-edge with object-fit:cover, so every corner of
+   every viewport (any aspect ratio, phone or desktop) is always covered —
+   no letterboxing, no gap at the bottom-right. */
+.cover__media {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  background: #000;
+  overflow: hidden;
+}
+
+.cover__media img,
+.cover__media video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  object-fit: cover;
+  border: 0;
+  pointer-events: none;
+}
+
+/* portrait-orientation stills fall back to contain, matching the original's
+   "grid-gallery-ratio-original" behaviour */
+.cover__media.is-framed img,
+.cover__media.is-framed video {
+  object-fit: contain;
+}
+
+/* ---- video background (homepage) ----------------------------------------
+   The original's first slide is a full-bleed Vimeo embed. The theme paints the
+   <img class="custom-fallback-image"> underneath and fades it out once the
+   player reports ready. On touch devices the original swaps the player for
+   the still (.gallery-video-background.mobile), which we mirror in JS. */
+.cover__media .custom-fallback-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 200ms ease-in;
+}
+
+.cover__media iframe.background-video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-width: 0;
+  opacity: 0;
+  transition: opacity 200ms ease-in;
+  pointer-events: none;
+}
+
+.cover__media.is-video-ready iframe.background-video { opacity: 1; }
+
+/* .scrim — the theme paints rgba(0,0,0,.2) at z-index:9999, but the slide is
+   .auto-overlay with a full-bleed video, so the visible scrim is transparent
+   for the video background. We keep an inert layer for parity and let the
+   gallery-style rule below decide the tint. */
+.cover__scrim {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+  pointer-events: none;
+  background-color: transparent;
+  transition: background 170ms ease-out, opacity 170ms ease-out;
+}
+
+.cover.has-scrim .cover__scrim { background-color: var(--overlay); }
+
+/* --------------------------------------------------------------------------
+   Foreground — .sqs-slide-layer-content
+   -------------------------------------------------------------------------- */
+
+/* .sqs-slide-layer-content — block box, padding 40/60/60/60.
+   The theme layers .align-content-center-vert on the homepage, which turns it
+   into a flex column so the single .group-copy child is centred vertically.
+   Measured geometry on the live site at 1440x900:
+     .sqs-slide-layer-content  display:block  padding 40px 60px 60px 60px
+     .group-copy               height 52.8px  rect.y 414
+   We use the flex variant for centring and pin .cover__copy to the measured
+   offset so both the box and its position line up. */
+.cover__inner {
+  position: relative;
+  z-index: 9999;
+  height: 100%;
+  min-height: 100vh;
+  padding: 40px 60px 60px 60px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;      /* .align-content-center-vert */
+}
+
+/* ---- .sqs-slice-group.group-branding.top-full-width ----------------------
+   Live geometry: group rect [60,40,1320,52] with zero padding; the h1 carries
+   16px vertical margins that push it to y=56, aligning its baseline with the
+   nav text (which uses the same 16px vertical padding). */
+.cover__brand {
+  position: absolute;
+  top: 40px;
+  left: 60px;
+  right: 60px;
+  z-index: 2;
+}
+
+/* ---- .sqs-slice-group.group-copy.align-center-vert.restrict-width-1000 ----
+   Measured on the live homepage: position:static, top:50%, height 52.8px,
+   rect y=414 in a 900px viewport. The theme achieves this with
+   .align-center-vert { top:50%; transform:translatey(-50%) } inside a
+   non-flex layer; we reproduce the same offset arithmetically below so the
+   box lands in the identical place without needing flex centring. */
+.cover__copy {
+  position: static;
+  top: 50%;
+  max-width: 880px;
+  width: 100%;
+  margin-left: 0;               /* .alignment-left */
+  margin-right: auto;
+  text-align: left;
+}
+
+/* .sqs-slice-group.group-links.responsive-wrapper.top-right -----------
+   Measured on the live site: position:absolute; top:40px; right:60px;
+   display:block. The two .sqs-slice children (social-icons, navigation) are
+   inline-block with `margin-left:1em` between siblings. */
+.cover__links {
+  position: absolute;
+  top: 40px;
+  right: 60px;
+  z-index: 3;
+  display: block;
+  white-space: nowrap;
+  line-height: 20px;
+}
+
+/* .responsive-wrapper .sqs-slice:not(:first-child) { margin-left:1em } */
+.cover__links > .sqs-slice { display: inline-block; vertical-align: middle; }
+.cover__links > .sqs-slice ~ .sqs-slice { margin-left: 1em; }
+
+/* --------------------------------------------------------------------------
+   Typography — .branding-font / .navigation-font / .heading-font / .body-font
+   Measured values from the live site (Chrome 1440x900):
+     branding  : EB Garamond 400 / 20px / lh 20px / ls 0.8px / none
+     navigation: EB Garamond 400 / 20px / lh 20px / ls 0.8px / lowercase
+                  li a padding .8em .6em (16px 12px), display:inline-block
+   -------------------------------------------------------------------------- */
+
+.brand,
+.cover__brand a,
+.cover__brand h1,
+#sqs-slash-page-header {
+  display: inline-block;
+  vertical-align: top;
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-style: normal;
+  font-size: 20px;
+  line-height: 20px;
+  text-transform: none;
+  letter-spacing: 0.04em;   /* 20px * .04 = 0.8px */
+  margin: 16px 0;           /* live: h1 margins offset the text to y=56 */
+  color: #fff;
+}
+
+.nav ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-style: normal;
+  font-size: 20px;
+  line-height: 20px;
+  text-transform: lowercase;      /* the original lowercases the menu labels */
+  letter-spacing: 0.04em;         /* 20px * .04 = 0.8px */
+  display: block;
+  white-space: nowrap;
+}
+
+.nav li { display: inline-block; margin: 0; }
+
+/* .navigation ul li a — measured: display:block, padding 16px 12px (=.8em .6em
+   at 20px), content-box so the computed height is the 20px line box and the
+   padding extends the layout box to 52px, exactly as the original. */
+.nav a {
+  display: block;
+  box-sizing: content-box;
+  padding: 0.8em 0.6em;
+  color: #fff;
+  transition: color 100ms ease-in-out;
+}
+
+.nav li:first-of-type a { padding-left: 0; }
+.nav li:last-of-type  a { padding-right: 0; }
+
+.nav a:hover,
+.nav a:focus { color: rgba(255, 255, 255, 0.6); }
+
+/* body copy: .body-font is futura-pt 800 @106px in the theme, but every slide
+   that actually fills this slot overrides it. Kept as an h-large default and
+   overridden per page via .copy / .prose. */
+.copy {
+  max-width: 36em;
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-size: 26px;
+  line-height: 1.3em;
+  letter-spacing: 0.5px;
+  text-align: left;
+  margin: 0;
+}
+
+.copy p { margin: 0; }
+.copy p:not(:last-of-type) { margin-bottom: 1em; }
+
+.copy a,
+.copy a:visited {
+  color: #fff;
+  text-decoration: none;
+  border-bottom: solid 1px rgba(255, 255, 255, 0.2);
+  transition: border-color 170ms ease-in-out;
+}
+
+.copy a:hover,
+.copy a:focus { border-bottom-color: #fff; }
+
+/* --------------------------------------------------------------------------
+   Social icons — .icon-wrapper @24px, inner div scaled 2x
+   -------------------------------------------------------------------------- */
+
+/* .responsive-wrapper .sqs-slice + .sqs-slice { margin-left:1em } gives the
+   gap between the icon rail and the menu. Measured: the first icon box sits at
+   x=942 with margin-left 7px, and the menu starts at x=1027. */
+/* .social is the [data-slice-type="social-icons"] slice itself */
+.social {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.nav-wrap { display: inline-block; vertical-align: middle; }
+.nav { display: inline-block; vertical-align: middle; }
+
+.social a.icon-wrapper {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: middle;
+  width: 24px;
+  height: 24px;
+  margin: 0 7px;                 /* measured: margin-left 7px on the first icon */
+  transform: translatez(0);
+  transition: opacity 100ms ease-in-out;
+}
+
+/* the theme keeps the 7px box on every icon — no first/last zeroing */
+
+.social a.icon-wrapper > div {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transform: scale(2);          /* .social-icons-style-regular */
+}
+
+.social a.icon-wrapper svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  fill: #fff;
+}
+
+.social a.icon-wrapper:hover { opacity: 0.6; }
+
+/* --------------------------------------------------------------------------
+   Language switcher — styled as a third slice next to social + nav
+   -------------------------------------------------------------------------- */
+
+.lang {
+  display: inline-block;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.lang button {
+  display: inline-block;
+  padding: 0.8em 0.45em;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 20px;
+  letter-spacing: 0.04em;
+  color: #fff;
+  transition: color 100ms ease-in-out;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.lang button + button { margin-left: 0.15em; }
+
+.lang button:hover,
+.lang button:focus { color: rgba(255, 255, 255, 0.6); }
+
+.lang button.is-active {
+  color: #fff;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+/* --- placement -----------------------------------------------------------
+   The switcher always sits immediately to the LEFT of the menu. Both groups
+   are right-anchored, so inserting it there leaves the menu (and, on the
+   cover pages, the icon rail) at exactly the x the original renders them. */
+.cover__links .lang { margin: 0 1.2em; }
+
+.cv__bar .lang,
+.page__head .lang { margin-left: auto; }
+
+.cv__bar .nav,
+.page__head .nav { margin-left: 1.2em; }
+
+/* dark text variants on the white pages */
+.page__head .lang button,
+.cv__bar .lang button { color: #111; }
+.page__head .lang button:hover,
+.page__head .lang button:focus,
+.cv__bar .lang button:hover,
+.cv__bar .lang button:focus { color: rgba(0, 0, 0, 0.6); }
+.page__head .lang button.is-active,
+.cv__bar .lang button.is-active { color: #111; }
+
+/* --------------------------------------------------------------------------
+   Thumbnail rail (works navigation)
+   -------------------------------------------------------------------------- */
+
+.rail {
+  position: fixed;
+  z-index: 100010;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 14px 60px calc(18px + env(safe-area-inset-bottom, 0px));
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.62), rgba(0, 0, 0, 0));
+  opacity: 0;
+  transform: translateY(100%);
+  transition: opacity 380ms var(--ease), transform 480ms var(--ease);
+  -webkit-overflow-scrolling: touch;
+}
+
+.rail::-webkit-scrollbar { display: none; }
+
+.rail.is-open { opacity: 1; transform: translateY(0); }
+
+.rail button {
+  flex: 0 0 auto;
+  width: 86px;
+  height: 54px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: #111 center/cover no-repeat;
+  cursor: pointer;
+  opacity: 0.55;
+  transition: opacity 240ms var(--ease), border-color 240ms var(--ease), transform 300ms var(--ease);
+}
+
+.rail button:hover { opacity: 0.9; transform: translateY(-3px); }
+
+.rail button.is-active {
+  opacity: 1;
+  border-color: #fff;
+}
+
+.rail-toggle {
+  position: fixed;
+  z-index: 10001;
+  right: 60px;
+  bottom: 26px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  background: rgba(0, 0, 0, 0.3);
+  color: #fff;
+  cursor: pointer;
+  display: none;
+  place-items: center;
+  backdrop-filter: blur(6px);
+  transition: background 240ms var(--ease), transform 300ms var(--ease);
+}
+
+.rail-toggle:hover { background: rgba(0, 0, 0, 0.55); transform: scale(1.08); }
+.rail-toggle.has-rail { display: grid; }
+.rail-toggle svg { width: 16px; height: 16px; fill: currentColor; }
+
+/* --------------------------------------------------------------------------
+   Scroll-driven index page (recent / drawings) — white theme, as original
+   -------------------------------------------------------------------------- */
+
+.page {
+  position: relative;
+  z-index: 1;
+  background: #fff;
+  color: #111;
+  min-height: 100vh;
+}
+
+.page__head {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 40px 60px;
+  background: rgba(255, 255, 255, 0.94);
+  color: #111;
+  backdrop-filter: blur(10px);
+}
+
+.page__head .brand,
+.page__head .nav a { color: #111; }
+.page__head .nav a:hover { color: rgba(0, 0, 0, 0.6); }
+
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2px;
+  padding: 2px;
+}
+
+.gallery figure {
+  margin: 0;
+  overflow: hidden;
+  background: #f2f2f2;
+  cursor: zoom-in;
+}
+
+.gallery img {
+  width: 100%;
+  height: auto;
+  transition: transform 900ms var(--ease), filter 600ms var(--ease);
+}
+
+.gallery figure:hover img { transform: scale(1.045); }
+
+/* --------------------------------------------------------------------------
+   Lightbox
+   -------------------------------------------------------------------------- */
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.94);
+}
+
+.lightbox.is-open { display: flex; }
+
+.lightbox img {
+  max-width: 92vw;
+  max-height: 88vh;
+  object-fit: contain;
+}
+
+.lightbox__nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 54px;
+  height: 54px;
+  border: 0;
+  background: none;
+  color: #fff;
+  font-size: 34px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0.55;
+  transition: opacity 200ms var(--ease);
+}
+
+.lightbox__nav:hover { opacity: 1; }
+.lightbox__nav.prev { left: 2vw; }
+.lightbox__nav.next { right: 2vw; }
+
+.lightbox__close {
+  position: absolute;
+  top: 22px;
+  right: 26px;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  background: none;
+  color: #fff;
+  font-size: 30px;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 200ms var(--ease), transform 300ms var(--ease);
+}
+
+.lightbox__close:hover { opacity: 1; transform: rotate(90deg); }
+
+/* --------------------------------------------------------------------------
+   CV page
+   -------------------------------------------------------------------------- */
+
+.cv {
+  position: relative;
+  z-index: 1;
+  background: #fff;
+  color: #111;
+  padding: 160px 60px 120px;
+}
+
+.cv__wrap { max-width: 980px; margin: 0 auto; }
+
+.cv__bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 40px 60px;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(10px);
+}
+
+.cv__bar .brand,
+.cv__bar .nav a { color: #111; }
+.cv__bar .nav a:hover { color: rgba(0, 0, 0, 0.6); }
+
+.cv__title {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: 20px;
+  letter-spacing: 0.04em;
+  line-height: 1.4em;
+  margin: 0 0 8px;
+}
+
+.cv__subtitle {
+  font-family: var(--font-serif);
+  font-size: 20px;
+  letter-spacing: 0.04em;
+  line-height: 1.4em;
+  color: #444;
+  margin: 0 0 48px;
+}
+
+.cv h2 {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: 20px;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  margin: 0 0 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.18);
+}
+
+.cv section { margin-bottom: 56px; }
+
+.cv p { margin: 0 0 12px; font-size: 17px; line-height: 1.55; }
+
+.cv .year-group { margin-bottom: 30px; }
+
+.cv .year {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: 20px;
+  letter-spacing: 0.04em;
+  margin: 0 0 10px;
+}
+
+.cv .exh {
+  font-size: 16px;
+  line-height: 1.62;
+  margin: 0 0 7px;
+  padding-left: 20px;
+  position: relative;
+  color: #222;
+}
+
+.cv .exh::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.72em;
+  width: 9px;
+  height: 1px;
+  background: #999;
+}
+
+.cv .award {
+  font-size: 16.5px;
+  line-height: 1.6;
+  margin: 0 0 9px;
+  padding-left: 20px;
+  position: relative;
+}
+
+.cv .award::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.72em;
+  width: 9px;
+  height: 1px;
+  background: #999;
+}
+
+/* --------------------------------------------------------------------------
+   GDPR cookie banner — geometry captured from the live site's runtime DOM
+   -------------------------------------------------------------------------- */
+
+.cookie-banner-mount-point {
+  position: fixed;
+  left: 8px;
+  right: 8px;
+  bottom: 8px;
+  z-index: 100000;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.gdpr-cookie-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 14px 16px;
+  background: #000;
+  color: #fff;
+}
+
+.gdpr-cookie-banner .disclaimer-text {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.4;
+  letter-spacing: 0;
+}
+
+.gdpr-cookie-banner .button-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 auto;
+}
+
+.gdpr-cookie-banner button {
+  padding: 11px 15px;
+  font-size: 12px;
+  font-family: inherit;
+  border-radius: 0;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.gdpr-cookie-banner .decline {
+  background: #000;
+  color: #fff;
+  border: 1px solid #fff;
+}
+
+.gdpr-cookie-banner .accept {
+  background: #fff;
+  color: #000;
+  border: 1px solid #fff;
+}
+
+@media (max-width: 600px) {
+  .gdpr-cookie-banner { flex-direction: column; align-items: flex-start; gap: 10px; }
+}
+
+/* --------------------------------------------------------------------------
+   Reveal animation
+   -------------------------------------------------------------------------- */
+
+.reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 900ms var(--ease), transform 900ms var(--ease);
+}
+
+.reveal.is-in { opacity: 1; transform: none; }
+
+/* --------------------------------------------------------------------------
+   Responsive / H5.
+   The theme's own mobile block keeps brand top-left and links top-right; the
+   menu only stacks when the theme's JS detects it cannot fit on one line.
+   We reproduce that runtime .stacked fallback as a viewport rule at 640px and
+   move the whole links group BELOW the brand, so nothing ever overlaps.
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 640px) {
+  .cover__inner {
+    padding: 20px;
+    padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .cover__brand {
+    top: 20px;
+    left: 20px;
+    right: 20px;
+  }
+
+  /* social / language / nav stack under the brand box (20px + 52px tall) */
+  .cover__links {
+    top: 78px;
+    left: 20px;
+    right: 20px;
+    display: block;
+    white-space: normal;
+  }
+
+  .cover__links > .sqs-slice { display: block; margin: 0 0 15px !important; }
+
+  .social { margin-bottom: 15px; }
+  .cover__links .lang { margin: 0 0 15px; }
+  .lang button { font-size: 17px; padding: 0.35em 0.6em 0.35em 0; }
+
+  .nav ul { display: block; font-size: 17px; }
+  .nav li { display: block; margin: 0; }
+  .nav li:not(:last-child) { margin-bottom: 15px; }
+  .nav a { display: block; padding: 0; }
+
+  .brand,
+  #sqs-slash-page-header { font-size: 17px; }
+
+  .works-title { font-size: 42px !important; }
+
+  .gallery { grid-template-columns: 1fr; }
+  .cv { padding: 140px 20px 80px; }
+  .cv__bar,
+  .page__head {
+    padding: 20px;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+  }
+  .cv__bar .brand,
+  .page__head .brand { flex: 0 0 100%; }
+  .cv__bar .lang,
+  .page__head .lang { margin-left: 0; }
+  .cv__bar .nav,
+  .page__head .nav { margin-left: 0; }
+  .cv__bar .nav ul,
+  .page__head .nav ul { font-size: 14px; }
+  .cv__bar .lang button,
+  .page__head .lang button { font-size: 14px; padding: 0.4em 0.3em; }
+
+  .rail { padding: 14px 20px calc(18px + env(safe-area-inset-bottom, 0px)); }
+  .rail-toggle {
+    right: 20px;
+    bottom: calc(26px + env(safe-area-inset-bottom, 0px));
+  }
+  .rail button { width: 68px; height: 44px; }
+
+  .cookie-banner-mount-point { bottom: calc(8px + env(safe-area-inset-bottom, 0px)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+  .reveal { opacity: 1; transform: none; }
+}
